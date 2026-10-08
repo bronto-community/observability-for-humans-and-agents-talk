@@ -1,0 +1,22 @@
+{
+  "name": "observability-for-humans-and-agents-talk",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.120",
+    "@slidev/cli": "52.19.2",
+    "@slidev/theme-default": "latest",
+    "gsap": "^3.15.0",
+    "qrcode-generator": "^2.0.4",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright-chromium": "^1.63.0"
+  }
+}

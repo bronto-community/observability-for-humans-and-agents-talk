@@ -1,0 +1,186 @@
+/* ── OllyGarden × Bronto co-brand theme ──────────────────────────────────────
+   Pulled from the live sites (Oct 2026):
+
+   bronto.io      warm off-white canvas, olive-ink text, dino amber accent,
+                  brown dotted "circuit" connectors. Source Serif display,
+                  Radio Canada Big body, Geist Mono for anything technical.
+   ollygarden.com deep forest canvas, mist text, sunflower accent, a pixel
+                  "bitmap" mosaic of greens with tulip / flower / chevron tiles.
+                  Space Grotesk everywhere.
+   joint blog     beige dot-grid canvas, both, plus the diagram idiom: soft
+                  cards, mono subtitle, brown dotted connectors with dot ends.
+
+   The deck uses the joint canvas for framing, the OllyGarden canvas for the
+   instrumentation half (`class: olly`) and the Bronto canvas for the analysis
+   half (`class: bronto`). Use the variables, never hardcoded hex.            */
+
+:root {
+  /* ── Bronto ── */
+  --b-bg:        #F8F7F3;   /* --color-surface                         */
+  --b-ink:       #2A2E25;   /* --primary  hsl(73 10.8% 16.3%)          */
+  --b-text:      #444441;   /* --foreground hsl(60 2.3% 26.1%)         */
+  --b-dim:       #787878;   /* --muted-foreground                      */
+  --b-amber:     #F5B719;   /* --accent  hsl(43.1 91.7% 52.9%) — dino  */
+  --b-brown:     #99753F;   /* --accent-foreground — connectors        */
+  --b-hair:      #E4DED2;
+
+  /* ── OllyGarden ── */
+  --o-forest:    #011E0C;
+  --o-card:      #082312;
+  --o-muted:     #19321E;
+  --o-mist:      #FAF9F0;
+  --o-mist-tint: #F4F3DF;
+  --o-dim:       color-mix(in srgb, var(--o-mist) 66%, transparent);
+  --o-sun:       #D1D100;   /* sunflower — primary accent */
+  --o-sprout:    #0EAD47;
+  --o-olive:     #697D07;
+  /* bitmap mosaic */
+  --px-hi:       #E3E270;
+  --px-mid:      #9DA704;
+  --px-olive:    #697D07;
+  --px-shadow:   #34520B;
+  --px-deep:     #22410F;
+  --px-sage:     #5A6E3A;
+
+  /* ── joint diagram idiom (the blog figures) ── */
+  --j-bg:        #E4E0CF;   /* cover-art beige         */
+  --j-dot:       #D3CDB9;
+  --card-neutral:#F1EEE7;   /* "automated agent step"  */
+  --card-amber:  #F6E8C6;   /* "input quality"         */
+  --card-amber-ink: #A26F2B;
+  --card-lime:   #F2F6BF;   /* "human checkpoint"      */
+  --card-lime-ink:  #7A960C;
+  --wire:        #A27434;   /* dotted connector brown  */
+  --wrong:       #C8432B;   /* "confident but wrong" stamp */
+
+  --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+  --grotesk: 'Space Grotesk', 'Radio Canada Big', system-ui, sans-serif;
+}
+
+/* ── Base: joint canvas ─────────────────────────────────────────────────── */
+.slidev-layout {
+  --fg: var(--b-ink);
+  --fg-dim: var(--b-dim);
+  --accent: var(--b-amber);
+  background-color: var(--j-bg);
+  background-image: radial-gradient(circle, var(--j-dot) 2.6px, transparent 3px);
+  background-size: 30px 30px;
+  background-position: 6px 6px;
+  color: var(--fg);
+  --slidev-code-font-size: 0.85em;
+}
+.slidev-layout h1,
+.slidev-layout h2 {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--fg);
+}
+.slidev-layout h1 { font-size: 2.4rem; }
+.slidev-layout p { color: var(--fg); }
+.mono, .slidev-layout code { font-family: var(--mono); }
+.dim { color: var(--fg-dim); }
+
+/* ── Bronto canvas ──────────────────────────────────────────────────────── */
+.slidev-layout.bronto {
+  --fg: var(--b-ink);
+  --fg-dim: var(--b-dim);
+  --accent: var(--b-amber);
+  background-color: var(--b-bg);
+  background-image: none;
+}
+.slidev-layout.bronto em,
+.slidev-layout.bronto strong { font-style: normal; font-weight: 500; color: var(--b-brown); }
+
+/* ── OllyGarden canvas ──────────────────────────────────────────────────── */
+.slidev-layout.olly {
+  --fg: var(--o-mist);
+  --fg-dim: var(--o-dim);
+  --accent: var(--o-sun);
+  background-color: var(--o-forest);
+  background-image: none;
+  font-family: var(--grotesk);
+}
+.slidev-layout.olly h1,
+.slidev-layout.olly h2 {
+  font-family: var(--grotesk);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.slidev-layout.olly em,
+.slidev-layout.olly strong { font-style: normal; font-weight: 500; color: var(--o-sun); }
+
+/* ── One title position for the whole deck (same rule as the other decks) ─ */
+.slidev-layout.center > div:has(> h1:first-child:not(:only-child)) {
+  min-height: 100%; display: flex; flex-direction: column; justify-content: flex-start;
+  padding-top: 4.4rem;
+}
+.slidev-layout.center > div > h1:first-child:not(:only-child) {
+  position: absolute; top: 2.2rem; left: 3.5rem; right: 3.5rem; margin: 0;
+}
+
+/* ── Shared bits ────────────────────────────────────────────────────────── */
+/* OllyGarden "badge" pill: chevrons + label, as in the site hero */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.2em 0.85em; border-radius: 999px;
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.02em;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+}
+.chip::before { content: '›››'; letter-spacing: -0.12em; }
+
+/* Statement slide: one sentence, nothing else */
+.slidev-layout .statement-text {
+  font-family: var(--serif); font-size: 3.1rem; line-height: 1.12;
+  letter-spacing: -0.02em; font-weight: 500; max-width: 46rem;
+}
+.slidev-layout.olly .statement-text { font-family: var(--grotesk); letter-spacing: -0.035em; }
+.statement-text em { font-style: normal; }
+
+/* Demo hand-over slides */
+.demo-kicker { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+
+.slidev-layout a.plain { border-bottom: none; text-decoration: none; }
+
+kbd {
+  background: var(--b-bg); border: 1px solid var(--b-hair);
+  border-radius: 5px; padding: 1px 6px; font-size: 0.85em;
+}
+
+/* ── Diagram primitives (the blog-figure idiom) ─────────────────────────────
+   .card            neutral: automated agent step
+   .card.amber      inputs
+   .card.lime       human checkpoint
+   .card-title / .card-sub   bold title + mono subtitle
+   SVG wires: class="wire" on a path, class="wire-dot" on its end circles.
+   On the olly canvas the same classes map onto the forest palette.          */
+.slidev-layout {
+  --card-bg: var(--card-neutral);   --card-fg: var(--b-ink);         --card-sub: #6F6A60;
+  --card-amber-bg: var(--card-amber); --card-amber-fg: var(--card-amber-ink);
+  --card-lime-bg: var(--card-lime);   --card-lime-fg: var(--card-lime-ink);
+  --wire-c: var(--wire);
+}
+.slidev-layout.olly {
+  --card-bg: var(--o-card);          --card-fg: var(--o-mist);        --card-sub: var(--o-dim);
+  --card-amber-bg: #2B2A0A;           --card-amber-fg: var(--px-hi);
+  --card-lime-bg: color-mix(in srgb, var(--o-sun) 16%, var(--o-forest)); --card-lime-fg: var(--o-sun);
+  --wire-c: var(--px-mid);
+}
+.card {
+  background: var(--card-bg); color: var(--card-fg);
+  border-radius: 12px; padding: 0.7rem 1.1rem;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+  text-align: center;
+}
+.olly .card { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--o-mist) 10%, transparent); }
+.card.amber { background: var(--card-amber-bg); color: var(--card-amber-fg); }
+.card.lime  { background: var(--card-lime-bg);  color: var(--card-lime-fg); }
+.card-title { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; line-height: 1.2; }
+.card-sub   { font-family: var(--mono); font-size: 0.68rem; margin-top: 0.2rem; color: var(--card-sub); }
+.card.amber .card-sub, .card.lime .card-sub { color: inherit; opacity: 0.85; }
+
+.wire { fill: none; stroke: var(--wire-c); stroke-width: 1.6; stroke-dasharray: 2.5 4; stroke-linecap: round; }
+.wire-dot { fill: var(--wire-c); }
