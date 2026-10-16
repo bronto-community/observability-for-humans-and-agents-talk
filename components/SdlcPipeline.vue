@@ -11,7 +11,8 @@ import { useStepTimeline } from '../composables/useStepTimeline'
  *       1  local development       agent step
  *       2  PR review               human checkpoint
  *       3  background agent        agent step
- *       4  autonomous PRs          agent step
+ *       4  autonomous PRs          agent step, plus the optional loop back to
+ *                                  the background agent
  *       5  human review            human checkpoint
  */
 const props = withDefaults(defineProps<{ step?: number }>(), { step: 0 })
@@ -32,7 +33,7 @@ const TX = 330        // trunk
 const JY = 196        // junction height (background agent row)
 const ST = { x: 362, w: 318, h: 60 }
 const STAGES = [
-  { title: 'Local development', sub: 'skills add conventions', human: false },
+  { title: 'Local development', sub: 'coding agents with skills', human: false },
   { title: 'PR review', sub: 'agent flags blind spots', human: true },
   { title: 'Background agent', sub: 'watches the whole codebase', human: false },
   { title: 'Autonomous PRs', sub: 'agent proposes fixes', human: false },
@@ -44,6 +45,12 @@ const srcLen = SOURCES.map(s => (JX - SRC.w) + Math.abs(JY - s.cy))
 const joinPath = `M${JX} ${JY} H${TX}`
 const stagePaths = STAGES.map(s => `M${TX} ${JY} V${s.cy} H${ST.x}`)
 const stageLen = STAGES.map(s => Math.abs(s.cy - JY) + (ST.x - TX))
+
+// optional loop on the right: background agent ⇄ autonomous PRs
+const RX = ST.x + 8 + ST.w   // right edge of the stage cards
+const [BG, PR] = [STAGES[2].cy, STAGES[3].cy]
+const loopDown = `M${RX} ${BG - 8} H${RX + 34} V${PR - 8} H${RX + 8}`
+const loopUp = `M${RX} ${PR + 8} H${RX + 58} V${BG - 18} H${RX + 8}`
 
 const pct = (v: number, of: number) => `${(v / of) * 100}%`
 
@@ -61,6 +68,7 @@ useStepTimeline(root, () => props.step, (tl) => {
     tl.fromTo(`.sp-m-st-${i}`, { strokeDashoffset: stageLen[i] }, { strokeDashoffset: 0, duration: 0.4, ease: 'power1.inOut' })
     tl.fromTo(`.sp-dot-st-${i}`, { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, duration: 0.2, ease: 'back.out(3)' }, '-=0.05')
     tl.fromTo(`.sp-st-${i}`, { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.4 }, '-=0.1')
+    if (i === 3) tl.fromTo('.sp-loop', { opacity: 0 }, { opacity: 1, duration: 0.4 })
     tl.addLabel(`s${i + 1}`)
   })
 })
@@ -84,6 +92,16 @@ useStepTimeline(root, () => props.step, (tl) => {
       <path v-for="(d, i) in srcPaths" :key="`s${i}`" class="wire" :d="d" :mask="`url(#${uid}-src-${i})`" />
       <path class="wire" :d="joinPath" :mask="`url(#${uid}-join)`" />
       <path v-for="(d, i) in stagePaths" :key="`t${i}`" class="wire" :d="d" :mask="`url(#${uid}-st-${i})`" />
+
+      <marker :id="`${uid}-arrow`" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 L8 4 L0 8 z" class="wire-dot" />
+      </marker>
+      <g class="sp-loop">
+        <path class="wire" :d="loopDown" :marker-end="`url(#${uid}-arrow)`" />
+        <path class="wire" :d="loopUp" :marker-end="`url(#${uid}-arrow)`" />
+        <text class="sp-loop-label" :x="RX + 70" :y="(BG + PR) / 2 - 4">optional</text>
+        <text class="sp-loop-label" :x="RX + 70" :y="(BG + PR) / 2 + 10">loop</text>
+      </g>
 
       <circle v-for="(s, i) in SOURCES" :key="`ds${i}`" class="wire-dot sp-dot-src" :cx="SRC.w" :cy="s.cy" r="4.5" />
       <circle v-for="(s, i) in STAGES" :key="`dt${i}`" class="wire-dot" :class="`sp-dot-st-${i}`" :cx="ST.x" :cy="s.cy" r="4.5" />
@@ -116,6 +134,8 @@ useStepTimeline(root, () => props.step, (tl) => {
 .sp { position: relative; width: 860px; max-width: 100%; margin: 0.5rem auto 0; }
 .sp-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .sp-m { fill: none; stroke: #fff; stroke-width: 8; }
+.sp-loop { opacity: 0; }
+.sp-loop-label { font-family: var(--mono); font-size: 10.5px; fill: var(--fg-dim); }
 
 .sp-card {
   position: absolute; box-sizing: border-box;
