@@ -221,6 +221,9 @@ Two questions drive it:
 - Could this be relevant during a 3 a.m. outage? Then instrument it proactively.
 - Could this attribute expose sensitive data? If in doubt, redact at the source.
 
+The code fills exactly the three "?" from the previous slide: customer, plan,
+feature flag. And the email goes out redacted, never raw.
+
 1  The theory sounds great. The reality: it's not trivial.
 2  Done right it needs consistency across application boundaries, correct context
    propagation, OpenTelemetry domain knowledge, and engineers with the time and
@@ -263,42 +266,37 @@ clicks: 3
 
 <WhatAgentsKnow :step="$clicks" />
 
+<div class="paper-ref">
+  <div class="pr-text">
+    <i>Can Large Language Models Generate Observability-Aware Code?</i>
+    <span>Tao, Zhang, Gao et al. · arXiv:2607.05785 · 2026</span>
+  </div>
+  <QrCode url="https://arxiv.org/pdf/2607.05785" :size="72" />
+</div>
+
+<style>
+.paper-ref { position: absolute; right: 3.5rem; bottom: 1.6rem; display: flex; align-items: center; gap: 0.8rem; }
+.pr-text { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; max-width: 18rem; text-align: right; }
+.pr-text i { font-size: 0.72rem; line-height: 1.25; color: var(--fg); }
+.pr-text span { font-family: var(--mono); font-size: 0.6rem; color: var(--fg-dim); }
+</style>
+
 <!--
 A recent study found that LLMs still struggle to decide what to instrument and
-how to instrument it effectively. (arxiv.org/pdf/2607.05785)
+how to instrument it effectively.
 
-1  They have learned that exceptions matter.
-2  They have learned that network calls matter.
+"Can Large Language Models Generate Observability-Aware Code?" (July 2026,
+arxiv.org/abs/2607.05785). Yongliang Tao, Hongyu Zhang, Pengfei Gao, Minghua Ma,
+Zhiyu Fan, Yu Kang, Jue Zhang, Si Qin, Liqun Li, Qingwei Lin, Saravan Rajmohan.
+
+1  They have learned that exceptions matter. Usually, not every time.
+2  They have learned that network calls matter. Same: usually.
 3  They are not reliable at deciding which business context matters. That part is
    still (mostly) on you.
--->
 
----
-layout: center
-class: olly
-clicks: 2
----
-
-# Agent skills
-
-<ContextBudget :step="$clicks" />
-
-<!--
-An obvious yet impactful improvement: give agents dedicated agent skills. One
-example is the OllyGarden OpenTelemetry agent skills
-(github.com/ollygarden/opentelemetry-agent-skills).
-
-They steer the agent and make sessions cheaper and faster.
-
-1  otel-semantic-conventions helps the agent navigate the large semconv registry
-   without pulling the whole thing into context: it finds the released attribute
-   names and span naming rules at a fraction of the tokens. Language skills like
-   otel-go point it at contrib libraries (otelhttp, otelgrpc) instead of
-   hand-rolled spans.
-2  Then extend them with your organization's conventions and instrumentation
-   guidelines. That knowledge isn't in the training data, so the model can't know
-   it unless you provide it. In our experience, one of the highest-leverage
-   things you can do.
+If asked: the study's agents were clearly better at *where* to put
+instrumentation than *what* to record in it, and the systems they built surfaced
+only a small share of injected faults in their telemetry.
 -->
 
 ---
@@ -307,7 +305,7 @@ class: olly
 clicks: 5
 ---
 
-# Instrumentation belongs in the SDLC
+# The state of agentic instrumentation
 
 <SdlcPipeline :step="$clicks" />
 
@@ -321,8 +319,100 @@ Manual instrumentation is business-relevant code; treat it accordingly.
    instructions push them further.
 3  Background agent: watches the whole codebase continuously.
 4  Autonomous PRs: closing the loop, the same process raises PRs on its own.
+   Optionally, that loop keeps running: the background agent finds a gap, raises
+   a PR, and watches what the fix changes.
 5  Human review: always. Agents love to over-instrument or apply inconsistent
    conventions.
+-->
+
+---
+layout: center
+class: olly
+---
+
+<div class="concept">
+  <div class="chip">Concept</div>
+  <h1>Agent skills</h1>
+  <p>Instructions an agent loads when a task calls for them. Written once, by someone who knows how it should be done.</p>
+</div>
+
+<!--
+Before the examples, what a skill is. A folder with a SKILL.md: a short
+description the agent always sees, and the instructions it only pulls in when
+the task matches. Plain markdown, versioned with your code, shareable.
+
+The OpenTelemetry agent skills are exactly that, for instrumentation.
+-->
+
+---
+layout: center
+class: olly
+clicks: 2
+---
+
+# Agent skills
+
+<SkillLayers :step="$clicks" />
+
+<!--
+On its own, an agent instruments from what it learned in training: public code,
+generic patterns, some of it from before the current semantic conventions.
+
+1  An obvious yet impactful improvement: agent skills. One example is the
+   OllyGarden OpenTelemetry agent skills
+   (github.com/ollygarden/opentelemetry-agent-skills). otel-semantic-conventions
+   points the agent at the released attribute names and span naming rules;
+   language skills like otel-go point it at contrib libraries (otelhttp,
+   otelgrpc) instead of hand-rolled spans. Bonus: it loads only the slice it
+   needs, so sessions get cheaper and faster.
+2  Use them as the baseline, then add your organization's own conventions and
+   instrumentation guidelines on top. That's the part no model can know unless
+   you tell it. In our experience, one of the highest-leverage things you can do.
+-->
+
+---
+layout: center
+class: olly
+clicks: 2
+---
+
+# Back to 3 a.m.
+
+<ThreeAm :step="$clicks" />
+
+<!--
+Why bother? Back to the failed checkout from the auto-instrumentation slide.
+It's 3 a.m., checkout is failing, and the first question is: who is affected?
+
+With auto-instrumentation only, the customer isn't on any span. The query finds
+nothing.
+
+1  Now agents add the instrumentation, but without skills to guide them: every
+   service, every agent session picks its own name, or skips it. acme.customer.id
+   here, userId there, and on the failing payment span: nothing. The query finds
+   one service out of three, and you don't know what you're missing.
+2  With the agent skills plus your conventions, every service writes the same
+   internal attribute. It doesn't matter whether the answer lives in service A or
+   service B: one query finds all of it. That holds for you, and even more for an
+   agent doing the retrieval: it can only query names it can predict.
+   That's the bridge to the analysis half.
+-->
+
+---
+layout: center
+class: olly
+---
+
+<div class="concept">
+  <div class="chip">Concept</div>
+  <h1>Background agent</h1>
+  <p>An agent that runs on its own schedule instead of your prompt, and looks at the whole codebase instead of one diff.</p>
+</div>
+
+<!--
+Before the example, what we mean by a background agent. Nobody opens a chat
+and asks. It runs on a schedule or on events (merges, releases), works through
+the repository, and reports back: findings, or a PR.
 -->
 
 ---

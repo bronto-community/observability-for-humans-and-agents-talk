@@ -184,3 +184,8 @@ kbd {
 
 .wire { fill: none; stroke: var(--wire-c); stroke-width: 1.6; stroke-dasharray: 2.5 4; stroke-linecap: round; }
 .wire-dot { fill: var(--wire-c); }
+
+/* Concept slide: a term and its one-line definition, nothing else */
+.concept { max-width: 44rem; }
+.slidev-layout .concept h1 { font-size: 3.6rem; margin: 1rem 0 1.2rem; }
+.slidev-layout .concept p { font-size: 1.6rem; line-height: 1.35; letter-spacing: -0.015em; color: var(--fg-dim); text-wrap: balance; }

@@ -5,6 +5,8 @@ import { useStepTimeline } from '../composables/useStepTimeline'
 
 /**
  * What the study found agents have learned to instrument, as three pixel meters.
+ * No meter ends clean: past the solid run a few shrinking tiles flicker, so even
+ * the rows that get a ✓ read as "usually", not "every time".
  *
  * stage 0  three empty meters
  *       1  exceptions: fills, ✓
@@ -17,10 +19,13 @@ const root = ref<HTMLElement>()
 
 const N = 14
 const ROWS = [
-  { name: 'exceptions', sub: 'recorded errors · span status', fill: N },
-  { name: 'network calls', sub: 'http · rpc · db clients', fill: N },
-  { name: 'business context', sub: 'which customer · plan · flag', fill: 5 },
+  { name: 'exceptions', sub: 'recorded errors · span status', fill: 10 },
+  { name: 'network calls', sub: 'http · rpc · db clients', fill: 9 },
+  { name: 'business context', sub: 'which customer · plan · flag', fill: 3 },
 ]
+// the ragged edge after the solid run: scale of each fading tile
+const EDGE = [0.75, 0.5, 0.28]
+const edge = (r: { fill: number }, k: number) => EDGE[k - r.fill - 1]
 
 useStepTimeline(root, () => props.step, (tl) => {
   tl.from('.wk-row', { opacity: 0, y: 14, stagger: 0.08, duration: 0.5 })
@@ -29,14 +34,17 @@ useStepTimeline(root, () => props.step, (tl) => {
   ROWS.forEach((r, i) => {
     const tiles = `.wk-row-${i} .wk-tile:nth-child(-n+${r.fill}) i`
     tl.to(tiles, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', stagger: 0.035 })
+    EDGE.forEach((sc, k) => {
+      tl.to(`.wk-row-${i} .wk-tile:nth-child(${r.fill + k + 1}) i`, { opacity: 1, scale: sc, duration: 0.3, ease: 'back.out(2.4)' }, '>-0.24')
+    })
     tl.to(`.wk-row-${i} .wk-name`, { opacity: 1, duration: 0.3 }, '<')
     tl.to(`.wk-row-${i} .wk-mark`, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(3)' }, '-=0.1')
     if (i === 2) tl.to('.wk-owner', { opacity: 1, y: 0, duration: 0.5 }, '+=0.1')
     tl.addLabel(`s${i + 1}`)
   })
 }, () => {
-  // the business-context tiles never settle
-  gsap.utils.toArray<HTMLElement>('.wk-row-2 .wk-tile b').forEach((el, k) => {
+  // the business-context tiles and every ragged edge never settle
+  gsap.utils.toArray<HTMLElement>('.wk-row-2 .wk-tile b, .wk-tile.edge b').forEach((el, k) => {
     gsap.to(el, {
       opacity: 0.25, duration: 0.18 + (k % 3) * 0.11, ease: 'steps(1)',
       repeat: -1, yoyo: true, repeatDelay: 0.4 + ((k * 7) % 5) * 0.23,
@@ -53,7 +61,7 @@ useStepTimeline(root, () => props.step, (tl) => {
         <div class="wk-sub">{{ r.sub }}</div>
       </div>
       <div class="wk-meter">
-        <span v-for="k in N" :key="k" class="wk-tile" :class="{ unsure: i === 2 }"><i><b /></i></span>
+        <span v-for="k in N" :key="k" class="wk-tile" :class="{ unsure: i === 2, edge: edge(r, k) }"><i><b /></i></span>
       </div>
       <div class="wk-mark" :class="{ q: i === 2 }">{{ i === 2 ? '?' : '✓' }}</div>
     </div>
