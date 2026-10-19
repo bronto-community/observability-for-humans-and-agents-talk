@@ -537,10 +537,15 @@ product. Explain what you're looking at, find the evidence, produce hypotheses.
 
 If you've never tried it, start there. No built-in chat? Connect a general-purpose
 model over MCP or a CLI and ask the questions you'd have clicked your way to.
+One conversation about one checkout incident. "Why did checkout start failing at
+3pm?" turns into a few tool calls and comes back with an answer you can check:
+the deploy, the timeout, the slow dependency.
 
-1  Don't stop at incidents: bottlenecks and optimization. Which service takes the
-   most time on the critical path of a payment? If retention is long enough: which
-   services were used less over the last three months?
+1  Don't stop at incidents: bottlenecks and optimization. Same thread: is
+   fraud-check always that slow? The incident turns into an optimization
+   question. Other good ones: which service takes
+   the most time on the critical path of a payment? If retention is long enough:
+   which services were used less over the last three months?
 2  Have it build dashboards, or vibe-code a whole custom UI on your data. All by
    asking, all faster than by hand.
 -->
@@ -548,7 +553,7 @@ model over MCP or a CLI and ask the questions you'd have clicked your way to.
 ---
 layout: center
 class: bronto
-clicks: 2
+clicks: 3
 ---
 
 # Level 2 · Skills
@@ -556,15 +561,18 @@ clicks: 2
 <SkillCollapse :step="$clicks" />
 
 <!--
-Run that way for a while and you notice the repetition: same questions, same
-context, same instructions and restrictions, typed again every session.
+Run that way for a while and you notice the repetition. The checkout question
+from the last slide is session 18. Every session before it opened with the same
+context, the same instructions and restrictions, typed again.
 
-1  That's what skills are for: markdown files you write once and hand to the model
-   whenever it does that task. Write your own or start from community examples.
-   Analysis starts to feel like programming: you tell it up front whether this is
-   incident response, prevention or optimization, and it comes with the right
-   assumptions.
-2  Still reactive, though. A human has to walk over to the machine and ask.
+1  Look at what's the same every time.
+2  That's what skills are for: pull it out into a markdown file you write once and
+   hand to the model whenever it does that task. Write your own or start from
+   community examples. Analysis starts to feel like programming: one skill for
+   incident response, one for prevention, one for optimization, each with the
+   right assumptions.
+3  Now every session is one command plus the question. Still reactive, though:
+   someone has to walk over to the machine and type it.
 -->
 
 ---
@@ -580,8 +588,11 @@ clicks: 4
 <!--
 Once you know where the model helps and where it doesn't, drop the reactive part.
 
-1  For a defined set of well-understood alerts, add a trigger that hands the alert
-   to an agent with instructions to investigate. LLM-powered runbooks.
+1  For a defined set of alerts you understand well, add a trigger that hands the
+   alert to an agent with instructions to investigate. LLM-powered runbooks.
+   Alerts aren't the only trigger: events work too. A deploy, a feature flag
+   flip, a new ticket. Deploy 9c1e from earlier could have started the
+   investigation before the first error.
 2  Give it skills, a few CLI tools and the MCP servers it needs.
 3  It comes back with hypotheses and candidate fixes on its own.
 4  Your job: review the output, accept what holds up, tune the agent for next time.
@@ -589,22 +600,6 @@ Once you know where the model helps and where it doesn't, drop the reactive part
 That's the first generation of "AI SRE" products at its core: a domain-specific
 agent with defined inputs, tools and outputs. Some platforms ship it; you can build
 your own with n8n or an agent framework like AWS Strands Agents.
--->
-
----
-layout: center
-class: bronto
-clicks: 4
----
-
-<MaturityLadder :step="$clicks" />
-
-<!--
-Recap the path: manual, chat, skills, agentic workflow.
-
-4  From here the remaining gains are almost entirely about inputs, tools, and the
-   quality of what you feed it. Those choices matter far more than which model or
-   harness you picked.
 -->
 
 ---
@@ -625,6 +620,22 @@ easier with agents, they get more expensive.
    token budget in an afternoon.
 2  You can gate it with suppression or a triage agent in front. The real fix is the
    same as it always was: alert on a clear signal.
+-->
+
+---
+layout: center
+class: bronto
+clicks: 4
+---
+
+<MaturityLadder :step="$clicks" />
+
+<!--
+Recap the path: manual, chat, skills, agentic workflow.
+
+4  From here the remaining gains are almost entirely about inputs, tools, and the
+   quality of what you feed it. Those choices matter far more than which model or
+   harness you picked.
 -->
 
 ---
@@ -673,7 +684,7 @@ DEMO 2 — Severin. Switch to aisre-lab.vercel.app.
 
 ---
 layout: center
-clicks: 3
+clicks: 2
 ---
 
 # From "human only" to "mostly agents"
@@ -686,8 +697,7 @@ changes shape.
 
 1  Instead of working through the tasks yourself, you orchestrate the agents that do.
 2  Your real work becomes improving that workflow, upgrading the building blocks
-   underneath it,
-3  one at a time, as you find the weak one.
+   underneath it, one at a time, as you find the weak one.
 
 You can build some blocks yourself, or get help: OllyGarden's Rose reviews your
 OpenTelemetry, adds what's missing and fixes what's off, continuously, so the

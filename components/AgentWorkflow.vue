@@ -7,10 +7,10 @@ import { useStepTimeline } from '../composables/useStepTimeline'
 gsap.registerPlugin(MotionPathPlugin)
 
 /**
- * Level 3: the alert hands itself to an agent. Same idiom as the blog figures:
- * amber = input, neutral = agent step, lime = human checkpoint.
+ * Level 3: an alert or an event hands itself to an agent. Same idiom as the
+ * blog figures: amber = input, neutral = agent step, lime = human checkpoint.
  *
- * stage 0  a well-understood alert
+ * stage 0  the inputs: an alert, or an event like a deploy
  *       1  a trigger hands it to an agent with instructions to investigate
  *       2  the agent gets skills, a few CLI tools and MCP servers
  *       3  it comes back with hypotheses and candidate fixes
@@ -24,7 +24,8 @@ const uid = `aw${useId()}`
 const W = 760
 const H = 380
 const WIRES = {
-  trigger: 'M170 186 H250',
+  trigger: 'M150 142 H195 V186 H250',
+  event: 'M150 230 H195 V186',
   t1: 'M285 70 V140',
   t2: 'M355 70 V140',
   t3: 'M425 70 V140',
@@ -44,10 +45,10 @@ useStepTimeline(root, () => props.step, (tl) => {
     })
   }
 
-  tl.from('.aw-alert', { autoAlpha: 0, x: -14, duration: 0.45 })
+  tl.from('.aw-in', { autoAlpha: 0, x: -14, stagger: 0.12, duration: 0.45 })
   tl.addLabel('s0')
 
-  draw(['trigger'])
+  draw(['trigger', 'event'])
   tl.from('.aw-l-trigger', { autoAlpha: 0, duration: 0.3 }, '<0.2')
   tl.from('.aw-agent', { autoAlpha: 0, scale: 0.94, duration: 0.45, ease: 'back.out(1.6)' }, '>-0.15')
   tl.addLabel('s1')
@@ -74,6 +75,7 @@ useStepTimeline(root, () => props.step, (tl) => {
     })
   }
   run('trigger', 1.4, { repeatDelay: 0.8 })
+  run('event', 1.0, { repeatDelay: 1.6, delay: 0.7 })
   run('t1', 1.1, { yoyo: true, repeatDelay: 0.4 })
   run('t2', 1.1, { yoyo: true, repeatDelay: 0.6, delay: 0.3 })
   run('t3', 1.1, { yoyo: true, repeatDelay: 0.5, delay: 0.6 })
@@ -96,22 +98,30 @@ useStepTimeline(root, () => props.step, (tl) => {
         <path :d="d" :class="`wire w-${k}`" />
         <circle :class="`pk pk-${k}`" r="4" />
       </g>
-      <text class="aw-l aw-l-trigger" x="210" y="174" text-anchor="middle">trigger</text>
+      <text class="aw-l aw-l-trigger" x="222" y="176" text-anchor="middle">trigger</text>
       <text class="aw-l aw-l-loop" x="447" y="342" text-anchor="middle">tune for next time</text>
     </svg>
 
-    <div class="aw-node aw-alert" style="left: 0; top: 150px; width: 170px">
+    <div class="aw-node aw-in" style="left: 0; top: 112px; width: 150px">
       <div class="aw-ring" />
       <div class="card amber">
         <div class="card-title">Alert</div>
-        <div class="card-sub">well-understood</div>
+        <div class="card-sub">checkout 5xx &gt; 2%</div>
+      </div>
+    </div>
+
+    <div class="aw-node aw-in" style="left: 0; top: 200px; width: 150px">
+      <div class="aw-ring" />
+      <div class="card amber">
+        <div class="card-title">Event</div>
+        <div class="card-sub">deploy 9c1e</div>
       </div>
     </div>
 
     <div class="aw-node aw-agent" style="left: 250px; top: 140px; width: 210px">
       <div class="card agent">
         <div class="card-title">Agent</div>
-        <div class="card-sub">investigate this alert</div>
+        <div class="card-sub">investigate this</div>
       </div>
     </div>
 
@@ -144,6 +154,7 @@ useStepTimeline(root, () => props.step, (tl) => {
 
 .aw-node { position: absolute; }
 .aw-node .card { height: 72px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+.aw-in .card { height: 60px; }
 .aw-agent .card { height: 92px; background: #fff; box-shadow: 0 10px 26px rgba(40, 30, 10, 0.1), inset 0 0 0 1px var(--b-hair); }
 .aw-agent .card-title { font-size: 1.25rem; }
 .aw-ring { position: absolute; inset: -6px; border-radius: 16px; border: 1.5px solid var(--b-amber); }
