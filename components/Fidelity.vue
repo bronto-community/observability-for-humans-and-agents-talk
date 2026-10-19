@@ -177,7 +177,7 @@ useStepTimeline(root, () => props.step, (tl) => {
 .h-body { margin-top: 0.35rem; font-size: 0.95rem; line-height: 1.35; color: var(--b-ink); }
 .h-body code { font-size: 0.85em; background: var(--b-bg); padding: 0 0.3em; border-radius: 4px; }
 .stamp {
-  position: absolute; right: -18px; bottom: -12px; transform: rotate(-8deg);
+  position: absolute; right: 40px; bottom: -16px; transform: rotate(-8deg);
   font-family: var(--mono); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--wrong); border: 2.5px solid var(--wrong); border-radius: 8px;
   padding: 0.05em 0.5em; background: color-mix(in srgb, #fff 85%, transparent);
