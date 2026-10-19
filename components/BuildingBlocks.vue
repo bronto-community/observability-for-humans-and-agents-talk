@@ -8,17 +8,16 @@ import { useStepTimeline } from '../composables/useStepTimeline'
  *
  * stage 0  you, doing every task yourself
  *       1  you move up and orchestrate; agents pick up the tasks
- *       2  the building blocks underneath light up: that's the real work
- *       3  the weakest block (alerts) wobbles and is swapped for a better one
+ *       2  the building blocks underneath light up: that's where the work is
  *
  * The blocks are drawn as the cover art's white keycap tiles.
- * Box 868 × 392 in slide px.
+ * Box 868 × 345 in slide px.
  */
 const props = withDefaults(defineProps<{ step?: number }>(), { step: 0 })
 const root = ref<HTMLElement>()
 
 const W = 868
-const H = 392
+const H = 345
 const TILE_W = 150
 const TILE_H = 92
 const GAP = (W - 5 * TILE_W) / 4
@@ -26,11 +25,10 @@ const TILE_Y = 236
 const CHIP_W = 132
 const CHIP_H = 38
 const CHIP_Y = 140
-const WEAK = 1
 
 const BLOCKS = [
   { t: 'Instrumentation', s: 'OpenTelemetry', logo: '/img/ollygarden-mark.svg', task: 'instrument' },
-  { t: 'Alerts', s: 'noisy', task: 'triage' },
+  { t: 'Alerts', s: 'clear signal', task: 'triage' },
   { t: 'Data & backend', s: 'full fidelity', logo: '/img/bronto-dino.png', task: 'investigate' },
   { t: 'Skills', s: 'your context', task: 'write runbook' },
   { t: 'Agent', s: 'tools + MCP', task: 'review fix' },
@@ -59,18 +57,9 @@ useStepTimeline(root, () => props.step, (tl) => {
   tl.from('.agent', { opacity: 0, scale: 0.2, transformOrigin: '50% 50%', stagger: 0.06, duration: 0.35, ease: 'back.out(2.5)' }, '<0.1')
   tl.addLabel('s1')
 
-  // 2 — the blocks are the real work
+  // 2 — the blocks are where the work is
   tl.from('.glow', { opacity: 0, scale: 0.92, transformOrigin: '50% 50%', stagger: 0.06, duration: 0.3 })
-  tl.from('.bracket', { opacity: 0, scaleX: 0.3, transformOrigin: '50% 50%', duration: 0.45 }, '<0.1')
-  tl.from('.real', { opacity: 0, y: 6, duration: 0.4 }, '<0.15')
   tl.addLabel('s2')
-
-  // 3 — find the weak one, swap it
-  tl.to(`.tile-${WEAK}`, { rotation: 4, duration: 0.07, yoyo: true, repeat: 5, ease: 'sine.inOut' })
-  tl.to(`.tile-${WEAK}`, { rotation: 0, duration: 0.07 })
-  tl.to(`.tile-${WEAK} .tile-old`, { y: 130, rotation: -14, opacity: 0, duration: 0.45, ease: 'power2.in' })
-  tl.fromTo(`.tile-${WEAK} .tile-new`, { y: -140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'bounce.out' }, '>-0.05')
-  tl.addLabel('s3')
 })
 </script>
 
@@ -82,8 +71,6 @@ useStepTimeline(root, () => props.step, (tl) => {
       <!-- orchestration -->
       <line class="wire bus" :x1="BLOCKS[0].cx" :y1="BUS" :x2="BLOCKS[4].cx" :y2="BUS" />
       <line v-for="b in BLOCKS" :key="'d' + b.t" class="wire drop" :x1="b.cx" :y1="BUS" :x2="b.cx" :y2="CHIP_Y" />
-      <!-- "the real work" bracket -->
-      <path class="bracket" :d="`M 4 ${TILE_Y + TILE_H + 14} v 10 H ${W - 4} v -10`" />
     </svg>
 
     <!-- tasks -->
@@ -105,28 +92,22 @@ useStepTimeline(root, () => props.step, (tl) => {
     </div>
 
     <!-- the building blocks -->
-    <div v-for="(b, i) in BLOCKS" :key="'t' + i" :class="['tile', `tile-${i}`]"
+    <div v-for="(b, i) in BLOCKS" :key="'t' + i" class="tile"
       :style="{ left: b.x + 'px', top: TILE_Y + 'px', width: TILE_W + 'px', height: TILE_H + 'px' }">
       <div class="glow" />
-      <div class="tile-face tile-old">
+      <div class="tile-face">
         <img v-if="b.logo" :src="b.logo" alt="" class="t-logo" />
         <div class="t-title">{{ b.t }}</div>
         <div class="t-sub mono">{{ b.s }}</div>
       </div>
-      <div v-if="i === WEAK" class="tile-face tile-new">
-        <div class="t-title">Alerts</div>
-        <div class="t-sub mono">clear signal</div>
-      </div>
     </div>
 
-    <div class="real">the real work</div>
   </div>
 </template>
 
 <style scoped>
 .blocks { position: relative; margin: 0 auto; }
 .wires { position: absolute; inset: 0; overflow: visible; }
-.bracket { fill: none; stroke: var(--b-brown); stroke-width: 1.6; }
 
 .chip-t {
   position: absolute; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
@@ -156,15 +137,7 @@ useStepTimeline(root, () => props.step, (tl) => {
   box-shadow: 0 6px 0 var(--b-ink);
 }
 .glow { position: absolute; inset: -5px -5px -11px; border-radius: 20px; background: var(--b-amber); opacity: 0.7; }
-.tile-new { opacity: 0; background: var(--card-lime); }
-.tile-new .t-sub { color: var(--card-lime-ink); }
-.tile-1 .tile-old .t-sub { color: var(--b-brown); }
 .t-logo { height: 22px; margin-bottom: 0.15rem; }
 .t-title { font-weight: 600; font-size: 0.98rem; color: var(--b-ink); }
 .t-sub { font-size: 0.64rem; color: var(--b-dim); }
-
-.real {
-  position: absolute; left: 0; right: 0; top: 362px; text-align: center;
-  font-family: var(--serif); font-size: 1.35rem; color: var(--b-brown);
-}
 </style>
