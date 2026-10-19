@@ -118,43 +118,6 @@ them, make the system better. That's Severin, Bronto.
 
 ---
 layout: center
-clicks: 3
----
-
-<div class="thesis">
-  <p class="statement-text">Agents help with both, but only when the telemetry is</p>
-  <div class="words">
-    <span v-click="1">intentional</span>
-    <span v-click="2">trustworthy</span>
-    <span v-click="3">easy to access</span>
-  </div>
-</div>
-
-<style>
-.slidev-layout .thesis .statement-text { font-size: 2.6rem; max-width: 40rem; }
-.words { display: flex; gap: 1.4rem; margin-top: 1.6rem; }
-.words span {
-  font-family: var(--mono); font-size: 1.15rem; padding: 0.45em 1em; border-radius: 12px;
-  background: var(--card-lime); color: var(--card-lime-ink);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-}
-.words span:nth-child(2) { background: var(--card-amber); color: var(--card-amber-ink); }
-.words span:nth-child(3) { background: var(--b-bg); color: var(--b-ink); }
-</style>
-
-<!--
-The thesis of the whole talk, so say it slowly.
-
-1  Intentional: someone decided this telemetry is worth emitting. (Instrumentation.)
-2  Trustworthy: it's complete, it's not sampled away, it means what it says.
-3  Easy to access: the agent can reach it, fast, as a tool call. (Analysis.)
-
-So: at which levels can you put LLMs to work on instrumentation and analysis?
-Nico starts.
--->
-
----
-layout: center
 class: olly
 ---
 
