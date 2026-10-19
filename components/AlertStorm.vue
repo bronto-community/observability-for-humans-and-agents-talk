@@ -9,8 +9,8 @@ import { useStepTimeline } from '../composables/useStepTimeline'
  * stage 0  one alert → one agent investigation
  *       1  an alert storm fans out into dozens of investigations; the token
  *          budget drains while the bill climbs
- *       2  a gate (suppression, triage agent) goes in front and the fan-out
- *          collapses to a few clear signals
+ *       2  a gate (suppression, triage agent) goes in front, the fan-out
+ *          collapses to a few clear signals and the bill drops with it
  *
  * Box 868 × 372 in slide px, SVG in the same coordinates.
  */
@@ -42,6 +42,7 @@ const GATE = { x: 232, y: OUT.y - 72, w: 112, h: 144 }
 
 const METER = { x: 760, y: 54, w: 44, h: 230 }
 const SPEND = 4800
+const GATED = 60
 
 const spent = ref<HTMLElement>()
 
@@ -81,7 +82,12 @@ useStepTimeline(root, () => props.step, (tl) => {
   tl.to('.n-hi', { opacity: 1, duration: 0.3 }, '<0.1')
   tl.to('.node.keep', { scale: 1.15, transformOrigin: '50% 50%', duration: 0.3, ease: 'back.out(3)' }, '<')
   tl.to('.m-fill', { scaleY: 0.82, duration: 0.8, ease: 'power2.out' }, '<')
+  tl.to(bill, {
+    v: GATED, duration: 0.8, ease: 'power2.out',
+    onUpdate: () => { if (spent.value) spent.value.textContent = Math.round(bill.v).toLocaleString('en-US') },
+  }, '<')
   tl.to('.drained', { opacity: 0, duration: 0.25 }, '<')
+  tl.from('.gated', { opacity: 0, y: 6, duration: 0.4 }, '>-0.3')
   tl.from('.punch', { opacity: 0, y: 8, duration: 0.6 }, '<0.2')
   tl.addLabel('s2')
 }, () => {
@@ -143,6 +149,9 @@ useStepTimeline(root, () => props.step, (tl) => {
     <div class="drained" :style="{ left: (METER.x - 70) + 'px', top: (METER.y + METER.h + 44) + 'px', width: (METER.w + 140) + 'px' }">
       drained in an afternoon
     </div>
+    <div class="gated" :style="{ left: (METER.x - 70) + 'px', top: (METER.y + METER.h + 44) + 'px', width: (METER.w + 140) + 'px' }">
+      3 investigations
+    </div>
 
     <p class="punch">Alert on a clear signal.</p>
   </div>
@@ -185,7 +194,7 @@ useStepTimeline(root, () => props.step, (tl) => {
 .m-fill { position: absolute; inset: 0; background: var(--b-amber); }
 .m-label { position: absolute; text-align: center; font-size: 0.72rem; color: var(--b-dim); }
 .bill { font-size: 1.15rem; color: var(--b-ink); font-weight: 500; }
-.drained { position: absolute; text-align: center; font-family: var(--mono); font-size: 0.72rem; color: var(--b-brown); }
+.drained, .gated { position: absolute; text-align: center; font-family: var(--mono); font-size: 0.72rem; color: var(--b-brown); }
 
 .slidev-layout .punch {
   position: absolute; left: 0; top: 268px; width: 380px; margin: 0;

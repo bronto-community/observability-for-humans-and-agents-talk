@@ -608,11 +608,13 @@ class: bronto
 clicks: 2
 ---
 
-# Inputs: alerts get expensive
+# Alerts get expensive
 
 <AlertStorm :step="$clicks" />
 
 <!--
+Now every alert starts an agent run, and every run has a price.
+
 Alerts were a hard problem when humans were the only consumers. They don't get
 easier with agents, they get more expensive.
 
